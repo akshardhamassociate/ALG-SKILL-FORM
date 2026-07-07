@@ -33,7 +33,47 @@
     min-height:100vh;
     padding:48px 16px 70px;
   }
-  .wrap{max-width:720px;margin:0 auto;}
+  .wrap{max-width:720px;margin:0 auto; perspective:1400px; position:relative; z-index:1;}
+
+  /* Glassmorphism floating blobs — parallax on scroll */
+  .glass-blob{
+    position:fixed;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:0;
+    backdrop-filter:blur(50px);
+    -webkit-backdrop-filter:blur(50px);
+    will-change:transform;
+  }
+  #confettiCanvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:999;
+  }
+  .blob-1{
+    width:300px; height:300px;
+    top:-90px; left:-100px;
+    background:radial-gradient(circle at 35% 35%, rgba(176,141,87,0.30), rgba(176,141,87,0.05) 70%);
+  }
+  .blob-2{
+    width:240px; height:240px;
+    top:38%; right:-90px;
+    background:radial-gradient(circle at 65% 35%, rgba(27,46,79,0.22), rgba(27,46,79,0.04) 70%);
+  }
+  .blob-3{
+    width:180px; height:180px;
+    bottom:4%; left:-60px;
+    background:radial-gradient(circle at 40% 40%, rgba(168,89,63,0.18), rgba(168,89,63,0.03) 70%);
+  }
+  @media (max-width:600px){
+    .glass-blob{ opacity:0.7; }
+    .blob-1{ width:220px; height:220px; }
+    .blob-2{ width:180px; height:180px; }
+    .blob-3{ width:140px; height:140px; }
+  }
 
   /* Header card */
   .header{
@@ -45,6 +85,18 @@
     padding:52px 40px 42px;
     position:relative;
     overflow:hidden;
+    transform-style:preserve-3d;
+    transition:transform .25s ease-out, box-shadow .25s ease-out;
+    box-shadow:0 25px 45px -15px rgba(15,25,45,0.45);
+    will-change:transform;
+  }
+  .header::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(115deg, rgba(255,255,255,0.14) 0%, transparent 35%);
+    pointer-events:none;
+    transform:translateZ(1px);
   }
   .header::before{
     content:"";
@@ -61,6 +113,8 @@
     text-transform:uppercase;
     margin:0 0 14px;
     font-family:'Inter', sans-serif;
+    position:relative;
+    transform:translateZ(35px);
   }
   h1{
     font-family:'Fraunces', serif;
@@ -70,6 +124,9 @@
     line-height:1.14;
     margin:0 0 14px;
     letter-spacing:-0.5px;
+    position:relative;
+    transform:translateZ(45px);
+    text-shadow:0 8px 20px rgba(0,0,0,0.25);
   }
   h1 em{
     font-style:italic;
@@ -82,6 +139,49 @@
     max-width:480px;
     margin:0;
     line-height:1.6;
+    position:relative;
+    transform:translateZ(25px);
+  }
+  .sound-toggle{
+    position:absolute;
+    top:20px; right:20px;
+    width:38px; height:38px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    border:1.2px solid rgba(230,211,172,0.4);
+    color:var(--gold-light);
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:5;
+    transform:translateZ(40px);
+    transition:background .15s, transform .1s;
+  }
+  .sound-toggle:hover{ background:rgba(255,255,255,0.2); }
+  .sound-toggle:active, .sound-toggle.is-touching{ transform:translateZ(40px) scale(0.9); }
+  .tilt-hint{
+    display:none;
+    margin-top:20px;
+    background:rgba(255,255,255,0.12);
+    border:1.2px solid rgba(230,211,172,0.5);
+    color:var(--gold-light);
+    padding:8px 16px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    position:relative;
+    transform:translateZ(30px);
+    animation:tiltHintPulse 2.2s ease-in-out infinite;
+  }
+  @media (pointer:coarse){
+    .tilt-hint.show{ display:inline-flex; align-items:center; gap:6px; }
+  }
+  @keyframes tiltHintPulse{
+    0%,100%{ opacity:0.75; transform:translateZ(30px) scale(1); }
+    50%{ opacity:1; transform:translateZ(30px) scale(1.04); }
   }
 
   /* Body card */
@@ -90,6 +190,7 @@
     border-radius:0 0 20px 20px;
     padding:40px 40px 44px;
     box-shadow:0 20px 50px rgba(15,25,45,0.16);
+    perspective:1000px;
   }
 
   .intro{
@@ -127,7 +228,18 @@
     line-height:1.6;
     margin:0 0 20px;
   }
-  .section{margin-bottom:36px;}
+  .section{
+    margin-bottom:36px;
+    transform-style:preserve-3d;
+    transform-origin:top center;
+    opacity:0;
+    transform:rotateX(-8deg) translateY(18px);
+    transition:opacity .65s ease, transform .65s cubic-bezier(0.22,1,0.36,1);
+  }
+  .section.is-visible{
+    opacity:1;
+    transform:rotateX(0deg) translateY(0);
+  }
 
   label{
     display:block;
@@ -179,20 +291,97 @@
   .field.invalid .error-msg{display:block;}
 
   /* Skill card blocks */
+  #skillsContainer{ perspective:900px; }
   .skill-block{
     background:var(--canvas);
     border:1.4px solid var(--line);
     border-radius:12px;
     padding:20px 20px 8px;
-    margin-bottom:16px;
+    margin-bottom:22px;
     position:relative;
+    z-index:1;
+    box-shadow:0 3px 8px rgba(27,46,79,0.06), 0 1px 0 rgba(255,255,255,0.6) inset;
+    transition:transform .18s ease, box-shadow .18s ease;
+    transform-style:preserve-3d;
   }
+  /* Static "stacked index cards" depth cue — visible on mobile without hover */
+  .skill-block::before, .skill-block::after{
+    content:"";
+    position:absolute;
+    left:4%; right:4%;
+    bottom:-6px;
+    height:14px;
+    border-radius:0 0 10px 10px;
+    z-index:-1;
+  }
+  .skill-block::before{
+    background:rgba(176,141,87,0.28);
+    transform:rotate(-1.4deg) translateY(2px);
+  }
+  .skill-block::after{
+    left:7%; right:7%;
+    background:rgba(27,46,79,0.14);
+    bottom:-11px;
+    transform:rotate(1deg) translateY(4px);
+  }
+  .skill-block:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 22px rgba(27,46,79,0.14), 0 1px 0 rgba(255,255,255,0.6) inset;
+  }
+  .skill-block:active, .skill-block.is-touching{
+    transform:translateY(-1px) scale(0.995);
+    box-shadow:0 5px 12px rgba(27,46,79,0.1), 0 1px 0 rgba(255,255,255,0.6) inset;
+  }
+  .skill-block.dragging{
+    z-index:60;
+    cursor:grabbing;
+    box-shadow:0 22px 40px rgba(27,46,79,0.28), 0 1px 0 rgba(255,255,255,0.6) inset;
+    transition:none;
+  }
+  .skill-block.drag-target-above{ border-top:2.5px solid var(--gold); }
+  .skill-block.drag-target-below{ border-bottom:2.5px solid var(--gold); }
+  @keyframes skillPopIn{
+    0%{ opacity:0; transform:scale(0.82) rotateX(-18deg) translateY(16px); }
+    55%{ opacity:1; transform:scale(1.03) rotateX(3deg) translateY(-3px); }
+    100%{ opacity:1; transform:scale(1) rotateX(0deg) translateY(0); }
+  }
+  .skill-block.pop-in{ animation:skillPopIn .5s cubic-bezier(0.22,1,0.36,1); }
+
+  @keyframes fieldShake{
+    10%,90%{ transform:translateX(-1px); }
+    20%,80%{ transform:translateX(2px); }
+    30%,50%,70%{ transform:translateX(-4px); }
+    40%,60%{ transform:translateX(4px); }
+  }
+  .field.shake{ animation:fieldShake .4s; }
   .skill-block-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     margin-bottom:16px;
+    gap:10px;
   }
+  .skill-block-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .drag-handle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:26px; height:26px;
+    color:var(--grey);
+    font-size:16px;
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+    border-radius:6px;
+    transition:background .15s, color .15s;
+    letter-spacing:-1px;
+  }
+  .drag-handle:hover{ background:rgba(27,46,79,0.06); color:var(--navy); }
+  .drag-handle:active{ cursor:grabbing; }
   .skill-number{
     font-family:'Fraunces', serif;
     font-weight:600;
@@ -226,18 +415,76 @@
     font-weight:600;
     cursor:pointer;
     margin-bottom:8px;
-    transition:background .15s;
+    position:relative;
+    top:0;
+    box-shadow:0 3px 8px rgba(176,141,87,0.18);
+    transition:background .15s, top .1s ease, box-shadow .1s ease;
   }
   .add-skill-btn:hover{background:var(--canvas);}
+  .add-skill-btn:active, .add-skill-btn.is-touching{
+    top:2px;
+    box-shadow:0 1px 3px rgba(176,141,87,0.18);
+  }
   .add-skill-btn:disabled{
     opacity:0.45;
     cursor:not-allowed;
+    top:0;
+    box-shadow:none;
   }
   .skill-count-note{
     text-align:center;
     font-size:12.5px;
     color:var(--grey);
-    margin-bottom:28px;
+    margin-bottom:8px;
+  }
+
+  /* Circular progress ring for skill counter */
+  .skill-progress{
+    position:relative;
+    width:88px; height:88px;
+    margin:4px auto 10px;
+  }
+  .progress-ring{
+    width:88px; height:88px;
+    transform:rotate(-90deg);
+    filter:drop-shadow(0 3px 6px rgba(27,46,79,0.15));
+  }
+  .ring-bg{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:7;
+  }
+  .ring-fill{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:7;
+    stroke-linecap:round;
+    stroke-dasharray:213.63;
+    stroke-dashoffset:213.63;
+    transition:stroke-dashoffset .45s cubic-bezier(0.22,1,0.36,1), stroke .3s ease;
+  }
+  .ring-fill.complete{ stroke:var(--ok); }
+  .progress-label{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  .progress-label .num{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:24px;
+    color:var(--navy);
+    line-height:1;
+    transition:transform .25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .progress-label .num.bump{ transform:scale(1.25); }
+  .progress-label .max{
+    font-size:10.5px;
+    color:var(--grey);
+    letter-spacing:0.5px;
   }
 
   /* Peer help card */
@@ -276,7 +523,10 @@
     font-size:13px;
     font-weight:600;
     color:var(--navy);
+    box-shadow:0 2px 5px rgba(27,46,79,0.1), 0 1px 0 rgba(255,255,255,0.8) inset;
+    transition:transform .15s ease;
   }
+  .peer-chip:hover{ transform:translateY(-2px); }
 
   .submit-btn{
     width:100%;
@@ -291,10 +541,28 @@
     letter-spacing:0.3px;
     cursor:pointer;
     margin-top:10px;
-    transition:filter .15s, transform .1s;
+    position:relative;
+    top:0;
+    box-shadow:
+      0 6px 0 var(--navy-deep),
+      0 6px 14px rgba(15,25,45,0.35);
+    transition:top .1s ease, box-shadow .1s ease, filter .15s;
   }
-  .submit-btn:hover{filter:brightness(1.12);}
-  .submit-btn:active{transform:scale(0.99);}
+  .submit-btn:hover{filter:brightness(1.1);}
+  .submit-btn:active, .submit-btn.is-touching{
+    top:5px;
+    box-shadow:
+      0 1px 0 var(--navy-deep),
+      0 2px 6px rgba(15,25,45,0.3);
+  }
+  .submit-btn:disabled{
+    top:0;
+    filter:none;
+    box-shadow:
+      0 6px 0 var(--navy-deep),
+      0 6px 14px rgba(15,25,45,0.35);
+    opacity:0.85;
+  }
 
   .loading-spinner{
     display:inline-block;
@@ -340,12 +608,23 @@
   .success-icon{
     width:60px;height:60px;
     border-radius:50%;
-    background:var(--ok);
+    background:radial-gradient(circle at 32% 28%, #4EA97D, var(--ok) 65%);
     color:#fff;
     font-size:30px;
     display:flex;align-items:center;justify-content:center;
     margin:0 auto 20px;
+    box-shadow:
+      0 8px 16px rgba(46,125,91,0.35),
+      inset 0 -4px 8px rgba(0,0,0,0.15),
+      inset 0 3px 4px rgba(255,255,255,0.4);
   }
+  @keyframes iconBounceIn{
+    0%{ transform:scale(0) rotate(-45deg); opacity:0; }
+    55%{ transform:scale(1.18) rotate(8deg); opacity:1; }
+    75%{ transform:scale(0.94) rotate(-4deg); }
+    100%{ transform:scale(1) rotate(0deg); }
+  }
+  .success-icon.animate{ animation:iconBounceIn .65s cubic-bezier(0.34,1.56,0.64,1); }
   .success-card h2{
     font-family:'Fraunces', serif;
     color:var(--navy);
@@ -386,6 +665,23 @@
     font-weight:600;
     font-size:14px;
     cursor:pointer;
+    position:relative;
+    top:0;
+    transition:top .1s ease, background .15s;
+  }
+  .reset-btn:hover{ background:rgba(27,46,79,0.06); }
+  .reset-btn:active, .reset-btn.is-touching{ top:2px; }
+
+  .help-card{
+    transform-style:preserve-3d;
+    transform-origin:top center;
+    opacity:0;
+    transform:rotateX(-8deg) translateY(18px);
+    transition:opacity .65s ease, transform .65s cubic-bezier(0.22,1,0.36,1);
+  }
+  .help-card.is-visible{
+    opacity:1;
+    transform:rotateX(0deg) translateY(0);
   }
 
   /* Mobile fine-tuning */
@@ -411,13 +707,19 @@
 </style>
 </head>
 <body>
+<canvas id="confettiCanvas"></canvas>
+<div class="glass-blob blob-1" id="blob1"></div>
+<div class="glass-blob blob-2" id="blob2"></div>
+<div class="glass-blob blob-3" id="blob3"></div>
 <div class="wrap">
 
   <div id="formView">
     <div class="header">
+      <button type="button" id="soundToggle" class="sound-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">🔇</button>
       <p class="eyebrow">Active Learner Group</p>
       <h1>Skill<br><em>Presentation Form</em></h1>
       <p class="sub">Every business runs on skills that are working. Tell us which of yours are — so we can help you share them, and learn from others.</p>
+      <button type="button" id="tiltHint" class="tilt-hint">✨ Tilt your phone</button>
     </div>
 
     <div class="card">
@@ -452,7 +754,18 @@
           <div id="skillsContainer"></div>
 
           <button type="button" class="add-skill-btn" id="addSkillBtn">+ Add Another Skill</button>
-          <p class="skill-count-note" id="skillCountNote">1 of 10 skills added — minimum 5 required</p>
+
+          <div class="skill-progress">
+            <svg class="progress-ring" viewBox="0 0 80 80">
+              <circle class="ring-bg" cx="40" cy="40" r="34"></circle>
+              <circle class="ring-fill" id="ringFill" cx="40" cy="40" r="34"></circle>
+            </svg>
+            <div class="progress-label">
+              <span class="num" id="skillCountNum">0</span>
+              <span class="max">of 10</span>
+            </div>
+          </div>
+          <p class="skill-count-note" id="skillCountNote">Minimum 5 required</p>
         </div>
 
         <div class="help-card">
@@ -485,8 +798,358 @@
 </div>
 
 <script>
+  // ── Haptic feedback helper (best-effort, silently no-ops where unsupported) ──
+  function buzz(pattern){
+    if(navigator.vibrate){ try{ navigator.vibrate(pattern); }catch(e){} }
+  }
+
+  // ── Sound design (Web Audio API — no external files needed) ──
+  // Default OFF, remembered per-browser via localStorage. Toggle button lives top-right of the header.
+  const SoundSystem = (function(){
+    let ctx = null;
+    let enabled = localStorage.getItem('algSoundEnabled') === 'true';
+
+    function getCtx(){
+      if(!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return null;
+        ctx = new AC();
+      }
+      if(ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+
+    function tone(freq, duration, type, volume, delay){
+      if(!enabled) return;
+      const audioCtx = getCtx();
+      if(!audioCtx) return;
+      const startAt = audioCtx.currentTime + (delay || 0);
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(volume || 0.05, startAt);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(startAt);
+      osc.stop(startAt + duration + 0.02);
+    }
+
+    return {
+      isEnabled: () => enabled,
+      setEnabled(v){
+        enabled = v;
+        localStorage.setItem('algSoundEnabled', v ? 'true' : 'false');
+        if(v) getCtx(); // warm up context on the enabling gesture
+      },
+      click(){ tone(560, 0.07, 'sine', 0.045); },
+      pop(){ tone(720, 0.09, 'triangle', 0.05); tone(980, 0.07, 'triangle', 0.03, 0.04); },
+      error(){ tone(190, 0.18, 'sawtooth', 0.04); },
+      success(){ tone(660, 0.14, 'sine', 0.05); tone(880, 0.18, 'sine', 0.05, 0.09); tone(1040, 0.22, 'sine', 0.04, 0.18); }
+    };
+  })();
+  function playClick(){ SoundSystem.click(); }
+  function playPop(){ SoundSystem.pop(); }
+  function playError(){ SoundSystem.error(); }
+  function playSuccess(){ SoundSystem.success(); }
+
+  (function initSoundToggle(){
+    const btn = document.getElementById('soundToggle');
+    if(!btn) return;
+    function paint(){
+      btn.textContent = SoundSystem.isEnabled() ? '🔊' : '🔇';
+    }
+    paint();
+    btn.addEventListener('click', () => {
+      SoundSystem.setEnabled(!SoundSystem.isEnabled());
+      paint();
+      if(SoundSystem.isEnabled()) playClick();
+      buzz(6);
+    });
+  })();
+
+  // ── Glassmorphism blobs: gentle parallax drift on scroll ──
+  (function initParallaxBlobs(){
+    const blobs = [
+      { el: document.getElementById('blob1'), speed: 0.12 },
+      { el: document.getElementById('blob2'), speed: -0.08 },
+      { el: document.getElementById('blob3'), speed: 0.16 }
+    ].filter(b => b.el);
+    if(!blobs.length) return;
+
+    let ticking = false;
+    function update(){
+      const y = window.scrollY || window.pageYOffset;
+      blobs.forEach(b => {
+        b.el.style.transform = `translateY(${y * b.speed}px)`;
+      });
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if(!ticking){
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+  })();
+
+  // ── Confetti burst (canvas-based, ~1.6s, runs once on successful submit) ──
+  function fireConfetti(){
+    const canvas = document.getElementById('confettiCanvas');
+    if(!canvas) return;
+    const ctx2d = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx2d.scale(dpr, dpr);
+
+    const colors = ['#B08D57', '#1B2E4F', '#A8593F', '#E6D3AC', '#2E7D5B'];
+    const count = 90;
+    const particles = [];
+    for(let i = 0; i < count; i++){
+      particles.push({
+        x: window.innerWidth / 2 + (Math.random() - 0.5) * 60,
+        y: window.innerHeight * 0.22,
+        vx: (Math.random() - 0.5) * 9,
+        vy: Math.random() * -7 - 4,
+        size: Math.random() * 7 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 14,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle'
+      });
+    }
+
+    const gravity = 0.22;
+    const drag = 0.985;
+    const duration = 1600;
+    const start = performance.now();
+
+    function frame(now){
+      const elapsed = now - start;
+      const t = elapsed / duration;
+      ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      particles.forEach(p => {
+        p.vy += gravity;
+        p.vx *= drag;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotSpeed;
+
+        ctx2d.save();
+        ctx2d.globalAlpha = Math.max(0, 1 - t);
+        ctx2d.translate(p.x, p.y);
+        ctx2d.rotate(p.rotation * Math.PI / 180);
+        ctx2d.fillStyle = p.color;
+        if(p.shape === 'rect'){
+          ctx2d.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
+        } else {
+          ctx2d.beginPath();
+          ctx2d.arc(0, 0, p.size/2, 0, Math.PI * 2);
+          ctx2d.fill();
+        }
+        ctx2d.restore();
+      });
+
+      if(elapsed < duration){
+        requestAnimationFrame(frame);
+      } else {
+        ctx2d.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ── Drag-to-reorder skill blocks (Pointer Events — works for mouse and touch alike) ──
+  (function initDragReorder(){
+    let dragEl = null;
+    let startY = 0;
+    let currentTranslate = 0;
+
+    window.initDragForBlock = function(block){
+      const handle = block.querySelector('.drag-handle');
+      if(!handle) return;
+      handle.addEventListener('pointerdown', (e) => onPointerDown(e, block));
+    };
+
+    function onPointerDown(e, block){
+      e.preventDefault();
+      dragEl = block;
+      startY = e.clientY;
+      currentTranslate = 0;
+      dragEl.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function onPointerMove(e){
+      if(!dragEl) return;
+      currentTranslate = e.clientY - startY;
+      dragEl.style.transform = `translateY(${currentTranslate}px) scale(1.02)`;
+
+      const siblings = [...skillsContainer.querySelectorAll('.skill-block:not(.dragging)')];
+      const pointerY = e.clientY;
+
+      document.querySelectorAll('.drag-target-above, .drag-target-below').forEach(el => {
+        el.classList.remove('drag-target-above', 'drag-target-below');
+      });
+
+      for(const sib of siblings){
+        const rect = sib.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        if(pointerY < midpoint){
+          sib.classList.add('drag-target-above');
+          break;
+        } else {
+          sib.classList.add('drag-target-below');
+        }
+      }
+    }
+
+    function onPointerUp(e){
+      if(!dragEl) return;
+      const pointerY = e.clientY;
+      const siblings = [...skillsContainer.querySelectorAll('.skill-block:not(.dragging)')];
+
+      let inserted = false;
+      for(const sib of siblings){
+        const rect = sib.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        if(pointerY < midpoint){
+          skillsContainer.insertBefore(dragEl, sib);
+          inserted = true;
+          break;
+        }
+      }
+      if(!inserted) skillsContainer.appendChild(dragEl);
+
+      dragEl.style.transform = '';
+      dragEl.classList.remove('dragging');
+      document.querySelectorAll('.drag-target-above, .drag-target-below').forEach(el => {
+        el.classList.remove('drag-target-above', 'drag-target-below');
+      });
+      document.body.style.userSelect = '';
+
+      buzz(10);
+      playClick();
+      renumberSkills();
+
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+      dragEl = null;
+    }
+  })();
+
+  // ── 3D tilt effect on the header ──
+  // Desktop/hover-capable devices: tilts with mouse position.
+  // Touch devices: tilts with the phone's own gyroscope (device orientation).
+  (function initTilt(){
+    const header = document.querySelector('.header');
+    if(!header) return;
+    const maxTilt = 6; // degrees
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if(supportsHover){
+      header.addEventListener('mousemove', (e) => {
+        const rect = header.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;
+        const py = (e.clientY - rect.top) / rect.height;
+        const rotY = (px - 0.5) * maxTilt * 2;
+        const rotX = (0.5 - py) * maxTilt * 2;
+        header.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      });
+      header.addEventListener('mouseleave', () => {
+        header.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+      return;
+    }
+
+    // Mobile: gyroscope-driven tilt
+    if(typeof window.DeviceOrientationEvent === 'undefined') return;
+
+    const tiltHint = document.getElementById('tiltHint');
+    let baseBeta = null;
+    const clampNum = (v, min, max) => Math.max(min, Math.min(max, v));
+
+    function handleOrientation(e){
+      if(e.beta === null || e.gamma === null) return;
+      if(baseBeta === null) baseBeta = e.beta; // calibrate to however the phone is naturally held
+      const deltaBeta = e.beta - baseBeta;
+      const rotY = clampNum(e.gamma, -25, 25) / 25 * maxTilt;
+      const rotX = clampNum(-deltaBeta, -25, 25) / 25 * maxTilt;
+      header.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      if(tiltHint) tiltHint.classList.remove('show');
+    }
+
+    function enableTilt(){
+      if(typeof DeviceOrientationEvent.requestPermission === 'function'){
+        // iOS 13+ requires an explicit user gesture to grant this
+        DeviceOrientationEvent.requestPermission().then((state) => {
+          if(state === 'granted'){
+            window.addEventListener('deviceorientation', handleOrientation);
+          }
+        }).catch(() => {});
+      } else {
+        // Android / other browsers — no explicit permission needed
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+      if(tiltHint){
+        tiltHint.removeEventListener('click', enableTilt);
+        setTimeout(() => tiltHint.classList.remove('show'), 4000);
+      }
+    }
+
+    if(tiltHint){
+      tiltHint.classList.add('show');
+      tiltHint.addEventListener('click', enableTilt);
+    }
+    // Also try silently in case permission isn't required on this browser
+    if(typeof DeviceOrientationEvent.requestPermission !== 'function'){
+      window.addEventListener('deviceorientation', handleOrientation);
+    }
+  })();
+
+  // ── Reliable touch-active states (mobile :active can lag/miss on some browsers) ──
+  (function initTouchStates(){
+    const selectors = '.submit-btn, .add-skill-btn, .reset-btn, .skill-block';
+    document.addEventListener('touchstart', (e) => {
+      const el = e.target.closest(selectors);
+      if(el) el.classList.add('is-touching');
+    }, { passive: true });
+    ['touchend','touchcancel'].forEach(evt => {
+      document.addEventListener(evt, (e) => {
+        const el = e.target.closest(selectors);
+        if(el) el.classList.remove('is-touching');
+      }, { passive: true });
+    });
+  })();
+
+  // ── Scroll-reveal 3D entrance for sections and the help card ──
+  (function initScrollReveal(){
+    const targets = document.querySelectorAll('.section, .help-card');
+    if(!('IntersectionObserver' in window)){
+      targets.forEach(t => t.classList.add('is-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    targets.forEach(t => observer.observe(t));
+  })();
+
   // ⬇️ Paste your Google Apps Script Web App URL here (see setup guide)
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgEPSi4VgCfxZopjxAE5vr1AS36ySwNWntA-xxnwIR2ePUQ9AtjEwLw7_YAnQi6lo/exec';
+  const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
   const MIN_SKILLS = 5;
   const MAX_SKILLS = 10;
@@ -495,6 +1158,9 @@
   const skillsContainer = document.getElementById('skillsContainer');
   const addSkillBtn = document.getElementById('addSkillBtn');
   const skillCountNote = document.getElementById('skillCountNote');
+  const ringFill = document.getElementById('ringFill');
+  const skillCountNum = document.getElementById('skillCountNum');
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 34; // matches r="34" in the SVG
   const form = document.getElementById('algForm');
   const submitBtn = document.getElementById('submitBtn');
   const submitError = document.getElementById('submitError');
@@ -509,7 +1175,10 @@
     block.dataset.index = idx;
     block.innerHTML = `
       <div class="skill-block-header">
-        <span class="skill-number">Skill ${idx}</span>
+        <div class="skill-block-left">
+          <span class="drag-handle" title="Drag to reorder">⠿</span>
+          <span class="skill-number">Skill ${idx}</span>
+        </div>
         <button type="button" class="remove-skill" onclick="removeSkillBlock(this)" ${idx <= MIN_SKILLS ? 'disabled' : ''}>Remove</button>
       </div>
       <div class="field" data-field="skillName">
@@ -533,6 +1202,11 @@
       </div>
     `;
     skillsContainer.appendChild(block);
+    block.classList.add('pop-in');
+    block.addEventListener('animationend', () => block.classList.remove('pop-in'), { once:true });
+    initDragForBlock(block);
+    buzz(8);
+    playPop();
     updateSkillUI();
   }
 
@@ -540,6 +1214,8 @@
     const block = btn.closest('.skill-block');
     block.remove();
     skillCount--;
+    buzz(6);
+    playClick();
     renumberSkills();
     updateSkillUI();
   }
@@ -554,7 +1230,19 @@
   }
 
   function updateSkillUI(){
-    skillCountNote.textContent = skillCount + ' of ' + MAX_SKILLS + ' skills added' + (skillCount < MIN_SKILLS ? ' — minimum ' + MIN_SKILLS + ' required' : '');
+    const pct = Math.min(skillCount / MAX_SKILLS, 1);
+    const offset = RING_CIRCUMFERENCE * (1 - pct);
+    ringFill.style.strokeDashoffset = offset;
+    ringFill.classList.toggle('complete', skillCount >= MIN_SKILLS);
+
+    skillCountNum.textContent = skillCount;
+    skillCountNum.classList.remove('bump');
+    void skillCountNum.offsetWidth;
+    skillCountNum.classList.add('bump');
+
+    skillCountNote.textContent = skillCount < MIN_SKILLS
+      ? ('Minimum ' + MIN_SKILLS + ' required')
+      : 'Great — ready to submit';
     addSkillBtn.disabled = skillCount >= MAX_SKILLS;
   }
 
@@ -605,6 +1293,12 @@
     });
 
     if(!valid){
+      buzz([15, 40, 15]);
+      playError();
+      document.querySelectorAll('.field.invalid').forEach(f => {
+        f.classList.add('shake');
+        f.addEventListener('animationend', () => f.classList.remove('shake'), { once:true });
+      });
       const firstInvalid = document.querySelector('.field.invalid');
       if(firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
       return;
@@ -617,6 +1311,7 @@
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading-spinner"></span>Submitting...';
+    playClick();
 
     submitToSheet(payload)
       .then(() => {
@@ -634,6 +1329,13 @@
         summaryBox.innerHTML = html;
         document.getElementById('formView').style.display = 'none';
         document.getElementById('successView').style.display = 'block';
+        const icon = document.querySelector('.success-icon');
+        icon.classList.remove('animate');
+        void icon.offsetWidth; // restart animation if shown again
+        icon.classList.add('animate');
+        buzz([10, 30, 10]);
+        playSuccess();
+        fireConfetti();
         window.scrollTo({top:0, behavior:'smooth'});
       })
       .catch(() => {

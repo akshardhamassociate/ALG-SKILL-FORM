@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active Learner Group — Skill Presentation Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2E4F;
+    --navy-deep:#0F1D33;
+    --gold:#B08D57;
+    --gold-light:#E6D3AC;
+    --rust:#A8593F;
+    --paper:#FDFCFA;
+    --canvas:#F1ECE1;
+    --ink:#20241F;
+    --grey:#6E6A62;
+    --line:#E1DACB;
+    --error:#B3423A;
+    --ok:#2E7D5B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter', -apple-system, sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(176,141,87,0.15), transparent 45%),
+      linear-gradient(180deg,#EDE7D9 0%, #E3DCC9 100%);
+    color:var(--ink);
+    min-height:100vh;
+    padding:48px 16px 70px;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  /* Header card */
+  .header{
+    background:var(--navy);
+    background-image:
+      radial-gradient(circle at 100% 0%, rgba(176,141,87,0.35), transparent 55%),
+      linear-gradient(150deg, var(--navy) 0%, var(--navy-deep) 100%);
+    border-radius:20px 20px 0 0;
+    padding:52px 40px 42px;
+    position:relative;
+    overflow:hidden;
+  }
+  .header::before{
+    content:"";
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:6px;
+    background:linear-gradient(180deg, var(--gold) 0%, var(--rust) 100%);
+  }
+  .eyebrow{
+    color:var(--gold-light);
+    letter-spacing:5px;
+    font-size:12.5px;
+    font-weight:600;
+    text-transform:uppercase;
+    margin:0 0 14px;
+    font-family:'Inter', sans-serif;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    color:#fff;
+    font-size:42px;
+    font-weight:600;
+    line-height:1.14;
+    margin:0 0 14px;
+    letter-spacing:-0.5px;
+  }
+  h1 em{
+    font-style:italic;
+    font-weight:500;
+    color:var(--gold-light);
+  }
+  .sub{
+    color:#B9C3D6;
+    font-size:15.5px;
+    max-width:480px;
+    margin:0;
+    line-height:1.6;
+  }
+
+  /* Body card */
+  .card{
+    background:var(--paper);
+    border-radius:0 0 20px 20px;
+    padding:40px 40px 44px;
+    box-shadow:0 20px 50px rgba(15,25,45,0.16);
+  }
+
+  .intro{
+    background:var(--canvas);
+    border-left:3px solid var(--gold);
+    padding:16px 20px;
+    border-radius:4px 10px 10px 4px;
+    font-size:14px;
+    color:var(--grey);
+    line-height:1.65;
+    margin-bottom:36px;
+  }
+
+  .section-label{
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 6px;
+    font-family:'Inter', sans-serif;
+  }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    color:var(--navy);
+    margin:0 0 8px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .section-desc{
+    font-size:13.5px;
+    color:var(--grey);
+    line-height:1.6;
+    margin:0 0 20px;
+  }
+  .section{margin-bottom:36px;}
+
+  label{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:7px;
+  }
+  label .req{color:var(--error); margin-left:2px;}
+  label .hint{
+    display:block;
+    font-weight:400;
+    color:var(--grey);
+    font-size:12.5px;
+    margin-top:3px;
+    line-height:1.5;
+  }
+
+  .field{margin-bottom:20px;}
+
+  input[type=text], input[type=tel], select, textarea{
+    width:100%;
+    padding:13px 15px;
+    font-size:16px;
+    font-family:'Inter', sans-serif;
+    border:1.4px solid #D6D1C0;
+    border-radius:9px;
+    background:#fff;
+    color:var(--ink);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input::placeholder, textarea::placeholder{ color:#B8B3A6; }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--navy);
+    box-shadow:0 0 0 3px rgba(27,46,79,0.1);
+  }
+  textarea{resize:vertical; min-height:70px; line-height:1.5;}
+
+  .error-msg{
+    color:var(--error);
+    font-size:12.5px;
+    margin-top:6px;
+    display:none;
+  }
+  .field.invalid input, .field.invalid select, .field.invalid textarea{
+    border-color:var(--error);
+  }
+  .field.invalid .error-msg{display:block;}
+
+  /* Skill card blocks */
+  .skill-block{
+    background:var(--canvas);
+    border:1.4px solid var(--line);
+    border-radius:12px;
+    padding:20px 20px 8px;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .skill-block-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .skill-number{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    color:var(--gold);
+    font-size:14px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  .remove-skill{
+    background:none;
+    border:none;
+    color:var(--error);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    padding:4px 8px;
+    border-radius:6px;
+    transition:background .15s;
+  }
+  .remove-skill:hover{background:rgba(179,66,58,0.1);}
+  .remove-skill[disabled]{visibility:hidden;}
+
+  .add-skill-btn{
+    width:100%;
+    padding:13px;
+    background:#fff;
+    border:1.6px dashed var(--gold);
+    color:var(--navy);
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    margin-bottom:8px;
+    transition:background .15s;
+  }
+  .add-skill-btn:hover{background:var(--canvas);}
+  .add-skill-btn:disabled{
+    opacity:0.45;
+    cursor:not-allowed;
+  }
+  .skill-count-note{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--grey);
+    margin-bottom:28px;
+  }
+
+  /* Peer help card */
+  .help-card{
+    background:#F4EFE3;
+    border:1.4px solid var(--gold-light);
+    border-radius:12px;
+    padding:20px 22px;
+    margin-bottom:36px;
+  }
+  .help-card-title{
+    font-weight:700;
+    color:var(--navy);
+    font-size:14.5px;
+    margin:0 0 8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .help-card p{
+    font-size:13.5px;
+    color:var(--grey);
+    line-height:1.65;
+    margin:0 0 12px;
+  }
+  .peer-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .peer-chip{
+    background:#fff;
+    border:1.2px solid var(--line);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--navy);
+  }
+
+  .submit-btn{
+    width:100%;
+    padding:16px;
+    background:var(--navy);
+    background-image:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:600;
+    letter-spacing:0.3px;
+    cursor:pointer;
+    margin-top:10px;
+    transition:filter .15s, transform .1s;
+  }
+  .submit-btn:hover{filter:brightness(1.12);}
+  .submit-btn:active{transform:scale(0.99);}
+
+  .loading-spinner{
+    display:inline-block;
+    width:16px;height:16px;
+    border:2.5px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+    vertical-align:middle;
+    margin-right:8px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .submit-error{
+    display:none;
+    background:#FBEAE8;
+    border:1px solid var(--error);
+    color:var(--error);
+    font-size:13px;
+    padding:11px 14px;
+    border-radius:8px;
+    margin-top:12px;
+    line-height:1.5;
+  }
+
+  .footer-note{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--grey);
+    margin-top:24px;
+    letter-spacing:0.3px;
+  }
+
+  /* Success state */
+  .success-card{
+    display:none;
+    background:var(--paper);
+    border-radius:20px;
+    padding:52px 40px;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(15,25,45,0.16);
+  }
+  .success-icon{
+    width:60px;height:60px;
+    border-radius:50%;
+    background:var(--ok);
+    color:#fff;
+    font-size:30px;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 20px;
+  }
+  .success-card h2{
+    font-family:'Fraunces', serif;
+    color:var(--navy);
+    margin:0 0 10px;
+    font-size:26px;
+    font-weight:600;
+  }
+  .success-card p{color:var(--grey); font-size:14.5px; line-height:1.65; margin:0 0 26px;}
+  .success-summary{
+    text-align:left;
+    background:var(--canvas);
+    border-radius:10px;
+    padding:20px 22px;
+    font-size:13.5px;
+    color:var(--ink);
+    margin-bottom:26px;
+    max-height:340px;
+    overflow-y:auto;
+  }
+  .success-summary .sum-name{
+    font-weight:700;
+    color:var(--navy);
+    margin-bottom:12px;
+    font-size:14.5px;
+  }
+  .success-summary .sum-skill{
+    padding:10px 0;
+    border-top:1px solid var(--line);
+  }
+  .success-summary .sum-skill:first-of-type{border-top:none;}
+  .success-summary strong{color:var(--navy); font-weight:600;}
+  .reset-btn{
+    background:none;
+    border:1.4px solid var(--navy);
+    color:var(--navy);
+    padding:11px 22px;
+    border-radius:9px;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+  }
+
+  /* Mobile fine-tuning */
+  @media (max-width:600px){
+    body{ padding:24px 12px 50px; }
+    .header{ padding:34px 22px 28px; border-radius:16px 16px 0 0; }
+    .eyebrow{ letter-spacing:3px; font-size:11.5px; }
+    h1{ font-size:32px; }
+    .sub{ font-size:14px; max-width:100%; }
+    .card{ padding:24px 20px 28px; border-radius:0 0 16px 16px; }
+    .intro{ font-size:13.5px; padding:14px 16px; margin-bottom:26px; }
+    .section-title{ font-size:19px; margin-bottom:6px; }
+    .section{ margin-bottom:28px; }
+    .skill-block{ padding:16px 16px 4px; }
+    .success-card{ padding:38px 22px; border-radius:16px; }
+    .success-card h2{ font-size:22px; }
+  }
+  @media (max-width:360px){
+    h1{ font-size:27px; }
+    .header{ padding:28px 18px 24px; }
+    .card{ padding:20px 16px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="formView">
+    <div class="header">
+      <p class="eyebrow">Active Learner Group</p>
+      <h1>Skill<br><em>Presentation Form</em></h1>
+      <p class="sub">Every business runs on skills that are working. Tell us which of yours are — so we can help you share them, and learn from others.</p>
+    </div>
+
+    <div class="card">
+      <div class="intro">
+        List 5 to 10 skills that you believe are directly responsible for your business's success. For each one, tell us which part of the business it belongs to, and exactly what result it improves. A committee will review every response and finalize the best 5 for your presentation.
+      </div>
+
+      <form id="algForm" novalidate>
+
+        <div class="section">
+          <p class="section-label">Step 1</p>
+          <p class="section-title">Your Details</p>
+
+          <div class="field" id="field-name">
+            <label for="memberName">Your Full Name <span class="req">*</span></label>
+            <input type="text" id="memberName" placeholder="Enter your full name">
+            <p class="error-msg">Please enter your name.</p>
+          </div>
+
+          <div class="field" id="field-business">
+            <label for="businessName">Business Name <span class="req">*</span></label>
+            <input type="text" id="businessName" placeholder="Enter your business name">
+            <p class="error-msg">Please enter your business name.</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <p class="section-label">Step 2</p>
+          <p class="section-title">Your Skills</p>
+          <p class="section-desc">Add at least 5 skills. You can add up to 10 — the committee will help you pick the strongest 5 for your final presentation.</p>
+
+          <div id="skillsContainer"></div>
+
+          <button type="button" class="add-skill-btn" id="addSkillBtn">+ Add Another Skill</button>
+          <p class="skill-count-note" id="skillCountNote">1 of 10 skills added — minimum 5 required</p>
+        </div>
+
+        <div class="help-card">
+          <p class="help-card-title">🤝 Not sure what your skill is?</p>
+          <p>You don't have to figure it out alone. Call any one of these members and talk it through with them — they'll help you spot it.</p>
+          <div class="peer-list">
+            <span class="peer-chip">Krishan ji</span>
+            <span class="peer-chip">Vinod ji</span>
+            <span class="peer-chip">Pritesh ji</span>
+            <span class="peer-chip">Rajesh ji</span>
+            <span class="peer-chip">Raj ji</span>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit My Skills</button>
+        <div class="submit-error" id="submitError">Something went wrong while sending your response. Please check your internet connection and try again.</div>
+      </form>
+      <p class="footer-note">Active Learner Group (ALG) &nbsp;|&nbsp; Skill Presentation Program</p>
+    </div>
+  </div>
+
+  <div class="success-card" id="successView">
+    <div class="success-icon">✓</div>
+    <h2>Thank you — skills received!</h2>
+    <p>Your skills have been submitted for review. The education committee will finalize your top 5 and let you know your presentation topic and schedule.</p>
+    <div class="success-summary" id="summaryBox"></div>
+    <button class="reset-btn" onclick="resetForm()">Submit Another Response</button>
+  </div>
+
+</div>
+
+<script>
+  // ⬇️ Paste your Google Apps Script Web App URL here (see setup guide)
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgEPSi4VgCfxZopjxAE5vr1AS36ySwNWntA-xxnwIR2ePUQ9AtjEwLw7_YAnQi6lo/exec';
+
+  const MIN_SKILLS = 5;
+  const MAX_SKILLS = 10;
+  let skillCount = 0;
+
+  const skillsContainer = document.getElementById('skillsContainer');
+  const addSkillBtn = document.getElementById('addSkillBtn');
+  const skillCountNote = document.getElementById('skillCountNote');
+  const form = document.getElementById('algForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const submitError = document.getElementById('submitError');
+
+  function addSkillBlock(){
+    if(skillCount >= MAX_SKILLS) return;
+    skillCount++;
+    const idx = skillCount;
+
+    const block = document.createElement('div');
+    block.className = 'skill-block';
+    block.dataset.index = idx;
+    block.innerHTML = `
+      <div class="skill-block-header">
+        <span class="skill-number">Skill ${idx}</span>
+        <button type="button" class="remove-skill" onclick="removeSkillBlock(this)" ${idx <= MIN_SKILLS ? 'disabled' : ''}>Remove</button>
+      </div>
+      <div class="field" data-field="skillName">
+        <label>Skill Name <span class="req">*</span></label>
+        <input type="text" class="skillName" placeholder="Name this skill">
+        <p class="error-msg">Please name this skill.</p>
+      </div>
+      <div class="field" data-field="skillFunction">
+        <label>Business Function
+          <span class="hint">Which part of the business does it belong to? (e.g., Sales, Marketing, Finance, HR, Operations)</span>
+        </label>
+        <input type="text" class="skillFunction" placeholder="Enter the business function">
+        <p class="error-msg">Please enter the business function.</p>
+      </div>
+      <div class="field" data-field="skillImpact">
+        <label>Impact <span class="req">*</span>
+          <span class="hint">What specific result or number does this skill improve?</span>
+        </label>
+        <textarea class="skillImpact" placeholder="Describe what this skill improves"></textarea>
+        <p class="error-msg">Please describe the impact.</p>
+      </div>
+    `;
+    skillsContainer.appendChild(block);
+    updateSkillUI();
+  }
+
+  function removeSkillBlock(btn){
+    const block = btn.closest('.skill-block');
+    block.remove();
+    skillCount--;
+    renumberSkills();
+    updateSkillUI();
+  }
+
+  function renumberSkills(){
+    const blocks = skillsContainer.querySelectorAll('.skill-block');
+    blocks.forEach((block, i) => {
+      block.dataset.index = i + 1;
+      block.querySelector('.skill-number').textContent = 'Skill ' + (i + 1);
+      block.querySelector('.remove-skill').disabled = (i + 1) <= MIN_SKILLS;
+    });
+  }
+
+  function updateSkillUI(){
+    skillCountNote.textContent = skillCount + ' of ' + MAX_SKILLS + ' skills added' + (skillCount < MIN_SKILLS ? ' — minimum ' + MIN_SKILLS + ' required' : '');
+    addSkillBtn.disabled = skillCount >= MAX_SKILLS;
+  }
+
+  addSkillBtn.addEventListener('click', addSkillBlock);
+
+  // Start with the minimum 5 skill blocks
+  for(let i = 0; i < MIN_SKILLS; i++) addSkillBlock();
+
+  function clearError(fieldEl){
+    fieldEl.classList.remove('invalid');
+  }
+
+  form.addEventListener('input', function(e){
+    const fieldEl = e.target.closest('.field');
+    if(fieldEl) clearError(fieldEl);
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    let valid = true;
+    submitError.style.display = 'none';
+
+    const name = document.getElementById('memberName').value.trim();
+    const business = document.getElementById('businessName').value.trim();
+
+    function markInvalid(fieldEl){
+      fieldEl.classList.add('invalid');
+      valid = false;
+    }
+
+    if(!name) markInvalid(document.getElementById('field-name'));
+    if(!business) markInvalid(document.getElementById('field-business'));
+
+    const skills = [];
+    skillsContainer.querySelectorAll('.skill-block').forEach(block => {
+      const nameField = block.querySelector('[data-field="skillName"]');
+      const funcField = block.querySelector('[data-field="skillFunction"]');
+      const impactField = block.querySelector('[data-field="skillImpact"]');
+
+      const skillName = nameField.querySelector('.skillName').value.trim();
+      const skillFunction = funcField.querySelector('.skillFunction').value.trim();
+      const skillImpact = impactField.querySelector('.skillImpact').value.trim();
+
+      if(!skillName) markInvalid(nameField);
+      if(!skillImpact) markInvalid(impactField);
+
+      skills.push({ skillName, skillFunction, skillImpact });
+    });
+
+    if(!valid){
+      const firstInvalid = document.querySelector('.field.invalid');
+      if(firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+
+    const payload = {
+      name, business, skills,
+      submittedAt: new Date().toISOString()
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading-spinner"></span>Submitting...';
+
+    submitToSheet(payload)
+      .then(() => {
+        const summaryBox = document.getElementById('summaryBox');
+        let html = `<div class="sum-name">${escapeHtml(name)} — ${escapeHtml(business)}</div>`;
+        skills.forEach((s, i) => {
+          html += `
+            <div class="sum-skill">
+              <div><strong>Skill ${i+1}:</strong> ${escapeHtml(s.skillName)}</div>
+              ${s.skillFunction ? `<div><strong>Function:</strong> ${escapeHtml(s.skillFunction)}</div>` : ''}
+              <div><strong>Impact:</strong> ${escapeHtml(s.skillImpact)}</div>
+            </div>
+          `;
+        });
+        summaryBox.innerHTML = html;
+        document.getElementById('formView').style.display = 'none';
+        document.getElementById('successView').style.display = 'block';
+        window.scrollTo({top:0, behavior:'smooth'});
+      })
+      .catch(() => {
+        submitError.style.display = 'block';
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit My Skills';
+      });
+  });
+
+  function submitToSheet(data){
+    if(!SCRIPT_URL || SCRIPT_URL.indexOf('YOUR_APPS_SCRIPT') === 0){
+      console.warn('SCRIPT_URL not configured — response was not saved to Google Sheets.');
+      return Promise.resolve();
+    }
+    return fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function resetForm(){
+    form.reset();
+    skillsContainer.innerHTML = '';
+    skillCount = 0;
+    for(let i = 0; i < MIN_SKILLS; i++) addSkillBlock();
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
+    submitError.style.display = 'none';
+    document.getElementById('successView').style.display = 'none';
+    document.getElementById('formView').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

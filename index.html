@@ -724,7 +724,7 @@
 
     <div class="card">
       <div class="intro">
-        List 5 to 10 skills that you believe are directly responsible for your business's success. For each one, tell us which part of the business it belongs to, and exactly what result it improves. A committee will review every response and finalize the best 5 for your presentation.
+        List the skills you believe are directly responsible for your business's success — at least 1 is required, and you can add up to 10 more if you'd like. For each one, tell us which part of the business it belongs to, and exactly what result it improves. A committee will review every response and finalize the best 5 for your presentation.
       </div>
 
       <form id="algForm" novalidate>
@@ -749,7 +749,7 @@
         <div class="section">
           <p class="section-label">Step 2</p>
           <p class="section-title">Your Skills</p>
-          <p class="section-desc">Add at least 5 skills. You can add up to 10 — the committee will help you pick the strongest 5 for your final presentation.</p>
+          <p class="section-desc">Skill 1 is required. Adding more (up to 10) is optional but helps the committee pick the strongest 5 for your final presentation.</p>
 
           <div id="skillsContainer"></div>
 
@@ -765,7 +765,7 @@
               <span class="max">of 10</span>
             </div>
           </div>
-          <p class="skill-count-note" id="skillCountNote">Minimum 5 required</p>
+          <p class="skill-count-note" id="skillCountNote">Skill 1 required</p>
         </div>
 
         <div class="help-card">
@@ -1151,7 +1151,8 @@
   // ⬇️ Paste your Google Apps Script Web App URL here (see setup guide)
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgEPSi4VgCfxZopjxAE5vr1AS36ySwNWntA-xxnwIR2ePUQ9AtjEwLw7_YAnQi6lo/exec';
 
-  const MIN_SKILLS = 5;
+  const DEFAULT_SKILLS = 5;   // how many blocks show by default
+  const REQUIRED_SKILLS = 1;  // only this many are mandatory to submit
   const MAX_SKILLS = 10;
   let skillCount = 0;
 
@@ -1169,6 +1170,8 @@
     if(skillCount >= MAX_SKILLS) return;
     skillCount++;
     const idx = skillCount;
+    const isRequired = idx <= REQUIRED_SKILLS;
+    const reqMark = isRequired ? ' <span class="req">*</span>' : '';
 
     const block = document.createElement('div');
     block.className = 'skill-block';
@@ -1179,10 +1182,10 @@
           <span class="drag-handle" title="Drag to reorder">⠿</span>
           <span class="skill-number">Skill ${idx}</span>
         </div>
-        <button type="button" class="remove-skill" onclick="removeSkillBlock(this)" ${idx <= MIN_SKILLS ? 'disabled' : ''}>Remove</button>
+        <button type="button" class="remove-skill" onclick="removeSkillBlock(this)" ${isRequired ? 'disabled' : ''}>Remove</button>
       </div>
       <div class="field" data-field="skillName">
-        <label>Skill Name <span class="req">*</span></label>
+        <label>Skill Name${reqMark}</label>
         <input type="text" class="skillName" placeholder="Name this skill">
         <p class="error-msg">Please name this skill.</p>
       </div>
@@ -1194,7 +1197,7 @@
         <p class="error-msg">Please enter the business function.</p>
       </div>
       <div class="field" data-field="skillImpact">
-        <label>Impact <span class="req">*</span>
+        <label>Impact${reqMark}
           <span class="hint">What specific result or number does this skill improve?</span>
         </label>
         <textarea class="skillImpact" placeholder="Describe what this skill improves"></textarea>
@@ -1223,9 +1226,19 @@
   function renumberSkills(){
     const blocks = skillsContainer.querySelectorAll('.skill-block');
     blocks.forEach((block, i) => {
+      const isRequired = (i + 1) <= REQUIRED_SKILLS;
       block.dataset.index = i + 1;
       block.querySelector('.skill-number').textContent = 'Skill ' + (i + 1);
-      block.querySelector('.remove-skill').disabled = (i + 1) <= MIN_SKILLS;
+      block.querySelector('.remove-skill').disabled = isRequired;
+
+      const nameLabel = block.querySelector('[data-field="skillName"] label');
+      const impactLabel = block.querySelector('[data-field="skillImpact"] label');
+      const reqMark = '<span class="req">*</span>';
+
+      nameLabel.innerHTML = isRequired ? `Skill Name ${reqMark}` : 'Skill Name';
+      impactLabel.innerHTML = isRequired
+        ? `Impact ${reqMark}\n          <span class="hint">What specific result or number does this skill improve?</span>`
+        : `Impact\n          <span class="hint">What specific result or number does this skill improve?</span>`;
     });
   }
 
@@ -1233,15 +1246,15 @@
     const pct = Math.min(skillCount / MAX_SKILLS, 1);
     const offset = RING_CIRCUMFERENCE * (1 - pct);
     ringFill.style.strokeDashoffset = offset;
-    ringFill.classList.toggle('complete', skillCount >= MIN_SKILLS);
+    ringFill.classList.toggle('complete', skillCount >= REQUIRED_SKILLS);
 
     skillCountNum.textContent = skillCount;
     skillCountNum.classList.remove('bump');
     void skillCountNum.offsetWidth;
     skillCountNum.classList.add('bump');
 
-    skillCountNote.textContent = skillCount < MIN_SKILLS
-      ? ('Minimum ' + MIN_SKILLS + ' required')
+    skillCountNote.textContent = skillCount < REQUIRED_SKILLS
+      ? ('Skill ' + REQUIRED_SKILLS + ' required')
       : 'Great — ready to submit';
     addSkillBtn.disabled = skillCount >= MAX_SKILLS;
   }
@@ -1249,7 +1262,7 @@
   addSkillBtn.addEventListener('click', addSkillBlock);
 
   // Start with the minimum 5 skill blocks
-  for(let i = 0; i < MIN_SKILLS; i++) addSkillBlock();
+  for(let i = 0; i < DEFAULT_SKILLS; i++) addSkillBlock();
 
   function clearError(fieldEl){
     fieldEl.classList.remove('invalid');
@@ -1277,7 +1290,8 @@
     if(!business) markInvalid(document.getElementById('field-business'));
 
     const skills = [];
-    skillsContainer.querySelectorAll('.skill-block').forEach(block => {
+    skillsContainer.querySelectorAll('.skill-block').forEach((block, i) => {
+      const isRequired = (i + 1) <= REQUIRED_SKILLS; // only skill 1 (and beyond, per REQUIRED_SKILLS) is mandatory
       const nameField = block.querySelector('[data-field="skillName"]');
       const funcField = block.querySelector('[data-field="skillFunction"]');
       const impactField = block.querySelector('[data-field="skillImpact"]');
@@ -1286,8 +1300,13 @@
       const skillFunction = funcField.querySelector('.skillFunction').value.trim();
       const skillImpact = impactField.querySelector('.skillImpact').value.trim();
 
-      if(!skillName) markInvalid(nameField);
-      if(!skillImpact) markInvalid(impactField);
+      if(isRequired){
+        if(!skillName) markInvalid(nameField);
+        if(!skillImpact) markInvalid(impactField);
+      }
+
+      // Skip pushing a completely blank optional block
+      if(!isRequired && !skillName && !skillFunction && !skillImpact) return;
 
       skills.push({ skillName, skillFunction, skillImpact });
     });
@@ -1370,7 +1389,7 @@
     form.reset();
     skillsContainer.innerHTML = '';
     skillCount = 0;
-    for(let i = 0; i < MIN_SKILLS; i++) addSkillBlock();
+    for(let i = 0; i < DEFAULT_SKILLS; i++) addSkillBlock();
     document.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
     submitError.style.display = 'none';
     document.getElementById('successView').style.display = 'none';
